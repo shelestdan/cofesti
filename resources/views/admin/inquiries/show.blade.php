@@ -1,0 +1,6 @@
+@extends('layouts.admin')
+
+@section('content')
+    <p class="eyebrow">Обращение</p><h1 class="display-title mt-3 text-5xl">{{ $inquiry->name }}</h1>
+    <div class="mt-8 grid gap-6 lg:grid-cols-[1fr_22rem]"><article class="admin-card"><p class="text-sm text-ink/55">{{ $inquiry->type }}</p><p class="mt-5 whitespace-pre-line text-sm leading-7">{{ $inquiry->message ?: 'Комментарий не оставлен.' }}</p></article><aside class="admin-card"><h2 class="font-bold">Контакты</h2>@if ($inquiry->phone)<p class="mt-3 text-sm">{{ $inquiry->phone }}</p>@endif @if ($inquiry->email)<p class="mt-1 text-sm">{{ $inquiry->email }}</p>@endif<form class="mt-7 grid gap-4" method="POST" action="{{ route('admin.inquiries.update', $inquiry) }}">@csrf @method('PUT')<label><span class="mb-2 block text-sm font-bold">Статус</span><select class="form-field" name="status">@foreach (\App\InquiryStatus::cases() as $inquiryStatus)<option value="{{ $inquiryStatus->value }}" @selected($inquiry->status === $inquiryStatus)>{{ $inquiryStatus->label() }}</option>@endforeach</select></label><label><span class="mb-2 block text-sm font-bold">Внутренний комментарий</span><textarea class="form-field min-h-28" name="internal_note">{{ $inquiry->internal_note }}</textarea></label><button class="button-primary" type="submit">Сохранить</button></form></aside></div>
+@endsection

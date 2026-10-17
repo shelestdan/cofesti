@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="COFESTI — кофейня, каталог кофе и ингредиентов для напитков.">
+    <title>COFESTI</title>
+    <link rel="preload" as="style" href="/cofesti/build/assets/app-0sXrNAQk.css" /><link rel="modulepreload" as="script" href="/cofesti/build/assets/app-CDP0mQmT.js" /><link rel="stylesheet" href="/cofesti/build/assets/app-0sXrNAQk.css" /><script type="module" src="/cofesti/build/assets/app-CDP0mQmT.js"></script><script id="browser-logger-active">
+(function() {
+    const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+    const logQueue = [];
+    let flushTimeout = null;
+    const captureTypes = ["error","warning","info","log","debug","table"];
+
+    console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+
+    // Store original console methods
+    const originalConsole = {
+        log: console.log,
+        debug: console.debug,
+        info: console.info,
+        error: console.error,
+        warn: console.warn,
+        table: console.table
+    };
+
+    // Walk own enumerable keys so JSON.stringify cannot auto-invoke a proxy fake toJSON (e.g. Livewire's `$wire`) and fire a real request.
+    function toSafeValue(value, seen) {
+        if (value === null || typeof value !== 'object') {
+            return value;
+        }
+        if (value instanceof Error) {
+            return { name: value.name, message: value.message, stack: value.stack };
+        }
+        // Date has no own enumerable keys, so the walk below would collapse it to {}.
+        if (value instanceof Date) {
+            return value.toISOString();
+        }
+        if (seen.has(value)) {
+            return '[Circular]';
+        }
+        seen.add(value);
+        if (Array.isArray(value)) {
+            return value.map((item) => toSafeValue(item, seen));
+        }
+        const plain = {};
+        for (const key of Object.keys(value)) {
+            if (key === 'toJSON') continue;
+            try {
+                plain[key] = toSafeValue(value[key], seen);
+            } catch (e) {
+                plain[key] = '[Unreadable]';
+            }
+        }
+        return plain;
+    }
+
+    // Helper to safely stringify values
+    function safeStringify(obj) {
+        return JSON.stringify(toSafeValue(obj, new WeakSet()));
+    }
+
+    // Normalize log type for consistency (e.g., 'warn' to 'warning')
+    function normalizeType(type) {
+        return type === 'warn' ? 'warning' : type;
+    }
+
+    // Determine if a log type should be captured based on configured levels
+    function shouldCapture(type) {
+        return captureTypes.includes(normalizeType(type));
+    }
+
+    // Batch and send logs
+    function flushLogs() {
+        if (logQueue.length === 0) return;
+
+        const batch = logQueue.splice(0, logQueue.length);
+
+        fetch(ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ logs: batch })
+        }).catch(err => {
+            // Silently fail to avoid infinite loops
+            originalConsole.error('Failed to send logs:', err);
+        });
+    }
+
+    // Debounced flush (100ms)
+    function scheduleFlush() {
+        if (flushTimeout) clearTimeout(flushTimeout);
+        flushTimeout = setTimeout(flushLogs, 100);
+    }
+
+    // Intercept console methods
+    ['log', 'debug', 'info', 'error', 'warn', 'table'].forEach(method => {
+        console[method] = function(...args) {
+            // Call original method
+            originalConsole[method].apply(console, args);
+
+            // Capture log data
+            try {
+                if (!shouldCapture(method)) {
+                    return;
+                }
+
+                logQueue.push({
+                    type: method,
+                    timestamp: new Date().toISOString(),
+                    data: args.map(arg => {
+                        try {
+                            return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                        } catch (e) {
+                            return String(arg);
+                        }
+                    }),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent
+                });
+
+                scheduleFlush();
+            } catch (e) {
+                // Fail silently
+            }
+        };
+    });
+
+    // Global error handlers for uncaught errors
+    const originalOnError = window.onerror;
+    window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
+        try {
+            if (shouldCapture('error')) {
+                logQueue.push({
+                    type: 'uncaught_error',
+                    timestamp: new Date().toISOString(),
+                    data: [{
+                        message: errorMsg,
+                        filename: url,
+                        lineno: lineNumber,
+                        colno: colNumber,
+                        error: error ? {
+                            name: error.name,
+                            message: error.message,
+                            stack: error.stack
+                        } : null
+                    }],
+                    url: window.location.href,
+                    userAgent: navigator.userAgent
+                });
+
+                scheduleFlush();
+            }
+
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Call original handler if it exists
+        if (originalOnError && typeof originalOnError === 'function') {
+            return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+        }
+
+        // Let the error continue to propagate
+        return false;
+    }
+    window.addEventListener('error', (event) => {
+        try {
+            if (!shouldCapture('error')) {
+                return false;
+            }
+
+            logQueue.push({
+                type: 'window_error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    error: event.error ? {
+                        name: event.error.name,
+                        message: event.error.message,
+                        stack: event.error.stack
+                    } : null
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Let the error continue to propagate
+        return false;
+    });
+    window.addEventListener('unhandledrejection', (event) => {
+        try {
+            if (!shouldCapture('error')) {
+                return false;
+            }
+
+            logQueue.push({
+                type: 'error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: 'Unhandled Promise Rejection',
+                    reason: toSafeValue(event.reason, new WeakSet())
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Let the rejection continue to propagate
+        return false;
+    });
+
+    // Flush on page unload
+    window.addEventListener('beforeunload', () => {
+        if (logQueue.length > 0) {
+            navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+        }
+    });
+})();
+</script>
+<link rel="stylesheet" href="/cofesti/preview.css"><meta name="robots" content="noindex, nofollow"></head>
+<body class="storefront is-home">
+    <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:left-5 focus:top-5 focus:z-50 focus:rounded-full focus:bg-olive focus:px-4 focus:py-2 focus:text-cream">Перейти к содержимому</a>
+
+    <header x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false" class="site-header">
+        <div class="header-shell">
+            <a href="/cofesti/" class="brand" aria-label="COFESTI, главная">
+                <span class="brand-name">COFESTI</span>
+                <span class="brand-tagline">Больше<br>чем кофе</span>
+            </a>
+
+            <nav class="desktop-nav" aria-label="Основная навигация">
+                <a class="hover:text-caramel" href="/cofesti/coffeeshop/">Кофейня</a>
+                <a class="hover:text-caramel" href="/cofesti/catalog/">Каталог</a>
+                <a class="hover:text-caramel" href="/cofesti/#wholesale">Опт</a>
+                <a class="hover:text-caramel" href="/cofesti/#about">О компании</a>
+                <a class="hover:text-caramel" href="/cofesti/#contacts">Контакты</a>
+            </nav>
+
+            <div class="header-actions">
+                <a class="header-icon search-link" href="/cofesti/catalog/#catalog-search" aria-label="Поиск"><i class="bi bi-search" aria-hidden="true"></i></a>
+                <span class="header-divider" aria-hidden="true"></span>
+                <a class="header-icon cart-link" href="/cofesti/cart/" aria-label="Корзина: 0"><i class="bi bi-cart3" aria-hidden="true"></i><span class="cart-count">0</span></a>
+                <button type="button" class="menu-toggle" @click="menuOpen = !menuOpen" :aria-expanded="menuOpen.toString()" aria-controls="mobile-menu" :aria-label="menuOpen ? 'Закрыть меню' : 'Открыть меню'"><i class="bi" :class="menuOpen ? 'bi-x-lg' : 'bi-list'" aria-hidden="true"></i></button>
+            </div>
+        </div>
+
+        <nav x-cloak x-show="menuOpen" x-transition.opacity.duration.200ms id="mobile-menu" class="mobile-nav" aria-label="Мобильная навигация">
+            <div class="page-shell flex flex-col gap-4 px-0 text-lg font-semibold">
+                <a @click="menuOpen = false" href="/cofesti/coffeeshop/">Кофейня</a>
+                <a @click="menuOpen = false" href="/cofesti/catalog/">Каталог</a>
+                <a @click="menuOpen = false" href="/cofesti/#wholesale">Опт</a>
+                <a @click="menuOpen = false" href="/cofesti/#about">О компании</a>
+                <a @click="menuOpen = false" href="/cofesti/#contacts">Контакты</a>
+            </div>
+        </nav>
+    </header>
+
+
+
+    <main id="content">
+            <section class="home-hero" aria-labelledby="hero-title">
+        <img class="hero-artwork" src="/cofesti/images/prototype/hero-reference-artwork.webp" alt="" width="1435" height="1096" fetchpriority="high">
+        <div class="hero-heading">
+            <h1 id="hero-title" class="hero-title">Кофе в вашем ритме</h1>
+            <p class="hero-subtitle">Разные сценарии. Одна любовь к кофе.</p>
+        </div>
+
+        <div class="hero-scenarios">
+            <a class="hero-scenario hero-cafe" href="/cofesti/coffeeshop/">
+                <img class="mobile-scenario-image" src="/cofesti/images/prototype/cafe-scene-prototype.webp" alt="" width="1122" height="1402">
+                <div class="hero-scenario-copy">
+                    <h2>Зайти<br>в кофейню</h2>
+                    <span class="scenario-action"><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+                </div>
+            </a>
+            <a class="hero-scenario hero-takeaway" href="/cofesti/coffeeshop/">
+                <img class="mobile-scenario-image" src="/cofesti/images/prototype/takeaway-cup-prototype.webp" alt="" width="1122" height="1402">
+                <div class="hero-scenario-copy">
+                    <h2>Взять<br>с собой</h2>
+                    <span class="scenario-action"><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+                </div>
+            </a>
+            <a class="hero-scenario hero-home" href="/cofesti/catalog/">
+                <img class="mobile-scenario-image" src="/cofesti/images/prototype/coffee-at-home-prototype.webp" alt="" width="1122" height="1402">
+                <div class="hero-scenario-copy">
+                    <h2>Выбрать<br>для дома</h2>
+                    <span class="scenario-action"><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+                </div>
+            </a>
+        </div>
+
+        <div class="hero-loyalty">
+            <div>
+                <p class="loyalty-title">Лояльность — скоро</p>
+                <p class="loyalty-note">Больше встреч.<br>Больше хорошего кофе.</p>
+            </div>
+            <p class="loyalty-outro">Всё хорошее<br>ещё впереди</p>
+        </div>
+    </section>
+
+    <div class="home-lower">
+    <section class="page-shell section-space featured-section">
+        <div class="section-heading featured-heading">
+            <div>
+                <p class="eyebrow" data-reveal="badge">Для ваших кофейных ритуалов</p>
+                <h2 class="display-title section-title" data-reveal="title">Выберите своё</h2>
+            </div>
+            <div class="featured-actions" data-reveal>
+                <a class="editorial-link" href="/cofesti/catalog/">Весь каталог <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+                <div class="featured-controls" hidden>
+                    <button type="button" class="rail-button" data-rail-prev aria-label="Предыдущие товары" aria-controls="featured-products" disabled><i class="bi bi-arrow-left" aria-hidden="true"></i></button>
+                    <button type="button" class="rail-button" data-rail-next aria-label="Следующие товары" aria-controls="featured-products"><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </div>
+
+                <div id="featured-products" class="product-grid featured-rail mt-12" role="region" aria-label="Товары COFESTI" tabindex="0">
+                            <article class="product-card" data-reveal>
+    <a class="product-image" href="/cofesti/catalog/1001-noch/" aria-label="1001 ночь">
+                    <img src="/cofesti/storage/catalog/6929.jpg" alt="1001 ночь" loading="lazy">
+                <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+    </a>
+    <div class="product-info">
+        <p class="product-category">Чай</p>
+        <h3><a href="/cofesti/catalog/1001-noch/">1001 ночь</a></h3>
+        <div class="product-bottom">
+            <span>490 ₽</span>
+            <a href="/cofesti/catalog/1001-noch/">Подробнее <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</article>
+                            <article class="product-card" data-reveal>
+    <a class="product-image" href="/cofesti/catalog/1002-nochi/" aria-label="1002 ночи">
+                    <img src="/cofesti/storage/catalog/6931.jpg" alt="1002 ночи" loading="lazy">
+                <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+    </a>
+    <div class="product-info">
+        <p class="product-category">Чай</p>
+        <h3><a href="/cofesti/catalog/1002-nochi/">1002 ночи</a></h3>
+        <div class="product-bottom">
+            <span>490 ₽</span>
+            <a href="/cofesti/catalog/1002-nochi/">Подробнее <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</article>
+                            <article class="product-card" data-reveal>
+    <a class="product-image" href="/cofesti/catalog/abrikos-pjure-agrobar/" aria-label="Абрикос пюре “AGROBAR”">
+                    <img src="/cofesti/storage/catalog/6197.jpg" alt="Абрикос пюре “AGROBAR”" loading="lazy">
+                <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+    </a>
+    <div class="product-info">
+        <p class="product-category">Пюре</p>
+        <h3><a href="/cofesti/catalog/abrikos-pjure-agrobar/">Абрикос пюре “AGROBAR”</a></h3>
+        <div class="product-bottom">
+            <span>676 ₽</span>
+            <a href="/cofesti/catalog/abrikos-pjure-agrobar/">Подробнее <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</article>
+                            <article class="product-card" data-reveal>
+    <a class="product-image" href="/cofesti/catalog/ajva-persik/" aria-label="Айва персик">
+                    <img src="/cofesti/storage/catalog/6933.jpg" alt="Айва персик" loading="lazy">
+                <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+    </a>
+    <div class="product-info">
+        <p class="product-category">Чай</p>
+        <h3><a href="/cofesti/catalog/ajva-persik/">Айва персик</a></h3>
+        <div class="product-bottom">
+            <span>490 ₽</span>
+            <a href="/cofesti/catalog/ajva-persik/">Подробнее <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</article>
+                            <article class="product-card" data-reveal>
+    <a class="product-image" href="/cofesti/catalog/ajva-pjure-agrobar/" aria-label="Айва пюре “AGROBAR”">
+                    <img src="/cofesti/storage/catalog/6239.jpg" alt="Айва пюре “AGROBAR”" loading="lazy">
+                <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+    </a>
+    <div class="product-info">
+        <p class="product-category">Пюре</p>
+        <h3><a href="/cofesti/catalog/ajva-pjure-agrobar/">Айва пюре “AGROBAR”</a></h3>
+        <div class="product-bottom">
+            <span>705 ₽</span>
+            <a href="/cofesti/catalog/ajva-pjure-agrobar/">Подробнее <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</article>
+                            <article class="product-card" data-reveal>
+    <a class="product-image" href="/cofesti/catalog/ajva-chernika/" aria-label="Айва черника">
+                    <img src="/cofesti/storage/catalog/6964.jpg" alt="Айва черника" loading="lazy">
+                <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+    </a>
+    <div class="product-info">
+        <p class="product-category">Чай</p>
+        <h3><a href="/cofesti/catalog/ajva-chernika/">Айва черника</a></h3>
+        <div class="product-bottom">
+            <span>441 ₽</span>
+            <a href="/cofesti/catalog/ajva-chernika/">Подробнее <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</article>
+                    </div>
+        <div class="featured-progress" data-rail-progress aria-hidden="true">
+            <span data-rail-position>01</span>
+            <div class="featured-progress-track"><span></span></div>
+            <span>06</span>
+        </div>
+            </section>
+
+    <section id="wholesale" class="wholesale-section section-space">
+        <div class="page-shell"><div class="wholesale-panel">
+            <img class="wholesale-branch" src="/cofesti/images/prototype/coffee-branch-prototype.webp" alt="" loading="lazy" aria-hidden="true">
+            <div class="wholesale-copy">
+                <p class="eyebrow" data-reveal="badge">Для бизнеса</p>
+                <h2 class="display-title" data-reveal="title">Хороший кофе <span class="title-accent">объединяет бизнес</span></h2>
+                <p class="mt-6 max-w-lg text-base leading-7 text-ink/75" data-reveal>Кофе, чай и ингредиенты для вашего проекта. Расскажите, что ищете — обсудим ассортимент и условия поставки.</p>
+                <div class="wholesale-visual" data-parallax-frame data-reveal="image">
+                <img class="wholesale-image" src="/cofesti/images/prototype/coffee-at-home-prototype.webp" alt="Кофейные зёрна и чайник для заваривания" width="1122" height="1402" loading="lazy">
+                <img class="wholesale-cup" data-parallax="30" src="/cofesti/images/prototype/takeaway-cup-cutout.webp" alt="" width="1086" height="1448" loading="lazy">
+                </div>
+            </div>
+
+            <div data-preview-form  class="inquiry-form" data-reveal  >
+                                <input type="hidden" name="type" value="wholesale">
+                <div class="grid gap-4">
+                    <label>
+                        <span class="mb-2 block text-sm font-bold">Имя</span>
+                        <input class="form-field" name="name" value="" autocomplete="name" required>
+                    </label>
+                    <label>
+                        <span class="mb-2 block text-sm font-bold">Телефон</span>
+                        <input class="form-field" type="tel" name="phone" value="" autocomplete="tel">
+                    </label>
+                    <label>
+                        <span class="mb-2 block text-sm font-bold">Email</span>
+                        <input class="form-field" type="email" name="email" value="" autocomplete="email">
+                    </label>
+                    <label>
+                        <span class="mb-2 block text-sm font-bold">Что нужно</span>
+                        <textarea class="form-field min-h-28" name="message"></textarea>
+                    </label>
+                    <label class="flex gap-3 text-sm leading-5">
+                        <input class="mt-1 size-4" type="checkbox" name="privacy_accepted" value="1" required>
+                        <span>Согласен на обработку данных для ответа на запрос. Текст политики добавляется после согласования.</span>
+                    </label>
+                    <button class="button-primary mt-2" type="submit">Отправить запрос</button>
+                </div>
+            </div>
+        </div></div>
+    </section>
+
+    <section id="about" class="page-shell section-space about-section">
+        <div class="about-collage">
+            <div class="about-image" data-parallax-frame data-reveal="image">
+                <img data-parallax="20" src="/cofesti/images/prototype/cafe-scene-prototype.webp" alt="Чашка кофе на столике в солнечной кофейне" width="1122" height="1402" loading="lazy">
+            </div>
+            <div class="about-inset" data-parallax-frame data-reveal="image" aria-hidden="true">
+                <img data-parallax="14" src="/cofesti/images/prototype/takeaway-cup-prototype.webp" alt="" width="1122" height="1402" loading="lazy">
+            </div>
+        </div>
+        <div class="about-copy">
+            <p class="eyebrow" data-reveal="badge">Больше, чем кофе</p>
+            <h2 class="display-title" data-reveal="title">У каждого дня<br><span class="title-accent">есть свой ритм.</span></h2>
+            <p data-reveal>Неспешная встреча в кофейне. Любимый напиток по дороге. Маленький ритуал дома. COFESTI собирает их вместе — вокруг хорошего кофе.</p>
+            <a class="editorial-link" data-reveal href="/cofesti/coffeeshop/">Заглянуть в кофейню <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        </div>
+    </section>
+    </div>
+    </main>
+
+    <footer id="contacts" class="site-footer">
+        <img class="footer-branch" src="/cofesti/images/prototype/coffee-branch-prototype.webp" alt="" aria-hidden="true" loading="lazy">
+        <div class="page-shell footer-heading">
+            <p class="eyebrow text-latte" data-reveal="badge">Остаёмся на связи</p>
+            <p class="display-title" data-reveal="title">Больше, чем кофе.</p>
+            <a class="round-link" data-reveal href="/cofesti/catalog/" aria-label="Перейти в каталог"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        </div>
+        <div class="page-shell grid gap-10 md:grid-cols-[1.3fr_1fr_1fr] footer-columns">
+            <div data-reveal>
+                <p class="text-2xl font-bold tracking-[0.16em]">COFESTI</p>
+                <p class="mt-4 max-w-sm text-sm leading-6 text-cream/75">Кофейня для встреч. Кофе по дороге. Всё для ваших ритуалов дома. Контактная информация скоро появится здесь.</p>
+            </div>
+            <div data-reveal>
+                <p class="eyebrow text-latte">Навигация</p>
+                <div class="mt-4 flex flex-col gap-3 text-sm">
+                    <a href="/cofesti/coffeeshop/">Кофейня</a>
+                    <a href="/cofesti/catalog/">Каталог</a>
+                    <a href="/cofesti/#wholesale">Оптовым клиентам</a>
+                </div>
+            </div>
+            <div data-reveal>
+                <p class="eyebrow text-latte">Сервис</p>
+                <p class="mt-4 text-sm leading-6 text-cream/75">Программа лояльности — скоро. Больше встреч. Больше хорошего кофе.</p>
+                                    <a class="mt-4 inline-block text-sm font-bold underline underline-offset-4" href="#preview-info">Вход для команды</a>
+                            </div>
+        </div>
+        <div class="page-shell footer-bottom"><span>© 2026 COFESTI</span><span>Разные сценарии. Одна любовь к кофе.</span><a href="#content">Наверх <i class="bi bi-arrow-up" aria-hidden="true"></i></a></div>
+    </footer>
+<dialog id="preview-info" aria-labelledby="preview-title"><h2 id="preview-title">Версия для просмотра дизайна</h2><p>GitHub Pages показывает страницы сайта. Корзина, отправка заявок, оформление заказов и вход для команды будут доступны на основном сайте с сервером.</p><button type="button" data-close-preview>Понятно</button></dialog><script defer src="/cofesti/preview.js"></script></body>
+</html>

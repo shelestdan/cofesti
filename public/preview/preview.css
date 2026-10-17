@@ -1,0 +1,8 @@
+#preview-info{max-width:520px;width:calc(100% - 40px);margin:auto;border:0;border-radius:24px;padding:32px;background:#efe4d0;color:#252019;font-family:inherit}
+#preview-info::backdrop{background:#25201980;backdrop-filter:blur(4px)}
+#preview-info h2{font-size:24px;line-height:1.25;margin-bottom:16px}
+#preview-info p{line-height:1.6}
+#preview-info button,[data-preview-pagination] button{border:1px solid #3c4836;border-radius:50px;padding:12px 20px;cursor:pointer;margin-top:20px}
+#preview-info button{background:#3c4836;color:#efe4d0}
+[data-preview-pagination]{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+[data-preview-pagination] button:disabled{opacity:.4;cursor:default}

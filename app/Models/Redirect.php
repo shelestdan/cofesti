@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Models;
+
+use Database\Factories\RedirectFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+#[Fillable(['from_path', 'to_path', 'status_code', 'is_active'])]
+class Redirect extends Model
+{
+    /** @use HasFactory<RedirectFactory> */
+    use HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+}
