@@ -1,13 +1,21 @@
 @font-face {
-    font-family: 'Nauryz';
-    src: url('../../public/fonts/nauryz-redkeds.woff') format('woff');
+    font-family: 'Copperplate';
+    src: url('../../public/fonts/copperplate-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Copperplate';
+    src: url('../../public/fonts/copperplate-bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
 }
 
 .storefront {
-    --font-section: 'Nauryz', 'Manrope', sans-serif;
+    --font-section: 'Copperplate', 'Times New Roman', serif;
     --section-paper: #faf7ef;
     --section-gold: #eed58c;
     --section-dark: #30372e;
@@ -42,8 +50,8 @@
     font-family: var(--font-section);
     font-weight: 700;
     font-synthesis: none;
-    letter-spacing: -.025em;
-    line-height: 1.02;
+    letter-spacing: -.015em;
+    line-height: 1.12;
 }
 
 .title-accent { color: var(--section-accent); }

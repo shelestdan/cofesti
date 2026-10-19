@@ -94,6 +94,7 @@ def copy_asset(value):
 
 
 def rewrite(markup):
+    markup = re.sub(r'<script\b[^>]*\bid="browser-logger-active"[^>]*>.*?</script>', '', markup, flags=re.S)
     markup = re.sub(r'<input\b[^>]*name="_token"[^>]*>', '', markup)
     markup = re.sub(r'<form\b([^>]*\bmethod="POST"[^>]*)>', '<div data-preview-form \\1>', markup, flags=re.I)
     # У формы заявки нет серверного action и возможности отправить введённые данные.

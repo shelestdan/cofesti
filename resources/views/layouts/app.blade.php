@@ -12,8 +12,8 @@
 
     <header x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false" class="site-header">
         <div class="header-shell">
-            <a href="{{ route('home') }}" class="brand" aria-label="COFESTI, главная">
-                <span class="brand-name">COFESTI</span>
+            <a href="{{ route('home') }}" class="brand" aria-label="ARMAT, главная">
+                <img class="brand-logo" src="{{ asset('images/brand/armat-logo.svg') }}" alt="ARMAT" width="1154" height="256">
                 <span class="brand-tagline">Больше<br>чем кофе</span>
             </a>
 
@@ -76,7 +76,7 @@
         </div>
         <div class="page-shell grid gap-10 md:grid-cols-[1.3fr_1fr_1fr] footer-columns">
             <div data-reveal>
-                <p class="text-2xl font-bold tracking-[0.16em]">COFESTI</p>
+                <img class="footer-logo" src="{{ asset('images/brand/armat-logo.svg') }}" alt="ARMAT" width="1154" height="256" loading="lazy">
                 <p class="mt-4 max-w-sm text-sm leading-6 text-cream/75">Кофейня для встреч. Кофе по дороге. Всё для ваших ритуалов дома. Контактная информация скоро появится здесь.</p>
             </div>
             <div data-reveal>
