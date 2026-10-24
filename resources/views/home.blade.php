@@ -58,7 +58,7 @@
         </div>
 
         @if ($featuredProducts->isNotEmpty())
-        <div id="featured-products" class="product-grid featured-rail mt-12" role="region" aria-label="Товары COFESTI" tabindex="0">
+        <div id="featured-products" class="product-grid featured-rail mt-12" role="region" aria-label="Товары ARMAT" tabindex="0">
             @foreach ($featuredProducts as $product)
                 @include('catalog.card', ['product' => $product])
             @endforeach
@@ -126,7 +126,7 @@
         <div class="about-copy">
             <p class="eyebrow" data-reveal="badge">Больше, чем кофе</p>
             <h2 class="display-title" data-reveal="title">У каждого дня<br><span class="title-accent">есть свой ритм.</span></h2>
-            <p data-reveal>Неспешная встреча в кофейне. Любимый напиток по дороге. Маленький ритуал дома. COFESTI собирает их вместе — вокруг хорошего кофе.</p>
+            <p data-reveal>Неспешная встреча в кофейне. Любимый напиток по дороге. Маленький ритуал дома. ARMAT собирает их вместе — вокруг хорошего кофе.</p>
             <a class="editorial-link" data-reveal href="{{ route('cafe.index') }}">Заглянуть в кофейню <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
         </div>
     </section>

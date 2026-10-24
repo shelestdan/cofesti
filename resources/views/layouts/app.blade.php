@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="{{ $metaDescription ?? 'COFESTI — кофейня, каталог кофе и ингредиентов для напитков.' }}">
-    <title>{{ isset($title) ? $title.' — COFESTI' : 'COFESTI' }}</title>
+    <meta name="description" content="{{ $metaDescription ?? 'ARMAT — кофейня, каталог кофе и ингредиентов для напитков.' }}">
+    <title>{{ isset($title) ? $title.' — ARMAT' : 'ARMAT' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="storefront {{ request()->routeIs('home') ? 'is-home' : 'is-inner' }}">
@@ -103,7 +103,7 @@
                 @endauth
             </div>
         </div>
-        <div class="page-shell footer-bottom"><span>© {{ date('Y') }} COFESTI</span><span>Разные сценарии. Одна любовь к кофе.</span><a href="#content">Наверх <i class="bi bi-arrow-up" aria-hidden="true"></i></a></div>
+        <div class="page-shell footer-bottom"><span>© {{ date('Y') }} ARMAT</span><span>Разные сценарии. Одна любовь к кофе.</span><a href="#content">Наверх <i class="bi bi-arrow-up" aria-hidden="true"></i></a></div>
     </footer>
 </body>
 </html>

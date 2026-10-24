@@ -23,7 +23,7 @@ class BusinessInquiryTest extends TestCase
             ->assertSee('action="'.route('inquiries.store').'"', false)
             ->assertSee('tel:+79033312189', false)
             ->assertSee('tel:+79277778678', false)
-            ->assertSee('mailto:RestoratorRf@yandex.ru', false)
+            ->assertSee('mailto:kofesti.armat@yandex.ru', false)
             ->assertSeeText('Тимофеевка');
     }
 

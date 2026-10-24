@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
 use App\StockStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -35,6 +36,12 @@ class ArmatCatalogSeeder extends Seeder
             $this->attachPhotograph($assam, 'armat-assam.jpg');
             $this->attachPhotograph($sencha, 'armat-sencha.jpg');
             $this->attachPhotograph($mogiana, 'armat-coffee.jpg');
+
+            Product::query()->whereNotIn('id', [$assam->id, $sencha->id, $mogiana->id])
+                ->update(['is_published' => false]);
+            Category::query()->published()
+                ->whereDoesntHave('products', fn (Builder $query): Builder => $query->published())
+                ->update(['is_published' => false]);
         });
     }
 

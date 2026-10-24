@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>{{ isset($title) ? $title.' — Админка COFESTI' : 'Админка COFESTI' }}</title>
+    <title>{{ isset($title) ? $title.' — Админка ARMAT' : 'Админка ARMAT' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-latte">
     <header class="border-b border-ink/10 bg-cream">
         <div class="page-shell flex min-h-20 flex-wrap items-center justify-between gap-5">
-            <a class="font-bold tracking-[0.16em]" href="{{ route('admin.dashboard') }}">COFESTI / АДМИНКА</a>
+            <a class="font-bold tracking-[0.16em]" href="{{ route('admin.dashboard') }}">ARMAT / АДМИНКА</a>
             <div class="flex items-center gap-4 text-sm">
                 <a href="{{ route('home') }}">На сайт</a>
                 <form method="POST" action="{{ route('logout') }}">

@@ -11,6 +11,31 @@ use Tests\TestCase;
 
 class ArmatCatalogTest extends TestCase
 {
+    public function test_only_confirmed_brand_products_remain_public_and_legacy_records_are_preserved(): void
+    {
+        Storage::fake('public');
+        Category::factory()->create(['slug' => 'kofe']);
+        $tea = Category::factory()->create(['slug' => 'chaj', 'name' => 'Чай']);
+        $syrups = Category::factory()->create(['slug' => 'siropy', 'name' => 'Сиропы']);
+        Product::factory()->hasAttached($tea)->create(['slug' => 'chaj-chjornyj-assam-250-gr', 'name' => 'Ассам']);
+        Product::factory()->hasAttached($tea)->create(['slug' => 'sencha', 'name' => 'Сенча']);
+        $legacy = Product::factory()->hasAttached($syrups)->create([
+            'name' => 'Сироп из старого каталога',
+            'price_minor' => 36000,
+            'is_published' => true,
+        ]);
+
+        $this->seed(ArmatCatalogSeeder::class);
+
+        $this->get(route('catalog.index'))->assertSeeText('Ассам')->assertSeeText('Сенча')
+            ->assertSeeText('Бразилия Можиана Эспрессо ARMAT, 1 кг')
+            ->assertDontSeeText('Сироп из старого каталога')->assertDontSeeText('Сиропы');
+        $this->get(route('catalog.show', $legacy))->assertNotFound();
+        $this->assertDatabaseHas('products', ['id' => $legacy->id, 'price_minor' => 36000, 'is_published' => false]);
+        $this->assertDatabaseHas('categories', ['id' => $syrups->id, 'is_published' => false]);
+        $this->assertSame(3, Product::query()->published()->count());
+    }
+
     public function test_brand_photographs_replace_primary_media_without_changing_prices_or_losing_previous_images(): void
     {
         Storage::fake('public');
