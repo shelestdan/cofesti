@@ -2,7 +2,7 @@
 <article class="product-card" data-reveal>
     <a class="product-image" href="{{ route('catalog.show', $product) }}" aria-label="{{ $product->name }}">
         @if ($media?->path)
-            <img src="{{ asset('storage/'.$media->path) }}" alt="{{ $media->alt_text ?: $product->name }}" loading="lazy">
+            <img @class(['product-photo' => data_get($media->metadata, 'presentation') === 'photograph']) src="{{ asset('storage/'.$media->path) }}" alt="{{ $media->alt_text ?: $product->name }}" loading="lazy">
         @else
             <span class="product-no-photo"><i class="bi bi-image" aria-hidden="true"></i><span>Фотография скоро</span></span>
         @endif

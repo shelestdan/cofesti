@@ -20,9 +20,9 @@
             <nav class="desktop-nav" aria-label="Основная навигация">
                 <a class="hover:text-caramel" href="{{ route('cafe.index') }}">Кофейня</a>
                 <a class="hover:text-caramel" href="{{ route('catalog.index') }}">Каталог</a>
-                <a class="hover:text-caramel" href="{{ route('home') }}#wholesale">Опт</a>
+                <a class="hover:text-caramel" href="{{ route('business.index') }}">Опт</a>
                 <a class="hover:text-caramel" href="{{ route('home') }}#about">О компании</a>
-                <a class="hover:text-caramel" href="{{ route('home') }}#contacts">Контакты</a>
+                <a class="hover:text-caramel" href="{{ route('business.index') }}#business-contacts">Контакты</a>
             </nav>
 
             <div class="header-actions">
@@ -37,9 +37,9 @@
             <div class="page-shell flex flex-col gap-4 px-0 text-lg font-semibold">
                 <a @click="menuOpen = false" href="{{ route('cafe.index') }}">Кофейня</a>
                 <a @click="menuOpen = false" href="{{ route('catalog.index') }}">Каталог</a>
-                <a @click="menuOpen = false" href="{{ route('home') }}#wholesale">Опт</a>
+                <a @click="menuOpen = false" href="{{ route('business.index') }}">Опт</a>
                 <a @click="menuOpen = false" href="{{ route('home') }}#about">О компании</a>
-                <a @click="menuOpen = false" href="{{ route('home') }}#contacts">Контакты</a>
+                <a @click="menuOpen = false" href="{{ route('business.index') }}#business-contacts">Контакты</a>
             </div>
         </nav>
     </header>
@@ -77,14 +77,20 @@
         <div class="page-shell grid gap-10 md:grid-cols-[1.3fr_1fr_1fr] footer-columns">
             <div data-reveal>
                 <img class="footer-logo" src="{{ asset('images/brand/armat-logo.svg') }}" alt="ARMAT" width="1154" height="256" loading="lazy">
-                <p class="mt-4 max-w-sm text-sm leading-6 text-cream/75">Кофейня для встреч. Кофе по дороге. Всё для ваших ритуалов дома. Контактная информация скоро появится здесь.</p>
+                <p class="mt-4 max-w-sm text-sm leading-6 text-cream/75">Кофейня для встреч. Кофе по дороге. Всё для ваших ритуалов дома.</p>
+                <div class="mt-4 flex flex-col items-start gap-3 text-sm">
+                    @foreach (array_filter(config('business.phones')) as $phone)
+                        <a href="tel:{{ preg_replace('/[^+0-9]/', '', $phone) }}">{{ $phone }}</a>
+                    @endforeach
+                    <a href="mailto:{{ config('business.email') }}">{{ config('business.email') }}</a>
+                </div>
             </div>
             <div data-reveal>
                 <p class="eyebrow text-latte">Навигация</p>
                 <div class="mt-4 flex flex-col gap-3 text-sm">
                     <a href="{{ route('cafe.index') }}">Кофейня</a>
                     <a href="{{ route('catalog.index') }}">Каталог</a>
-                    <a href="{{ route('home') }}#wholesale">Оптовым клиентам</a>
+                    <a href="{{ route('business.index') }}">Оптовым клиентам</a>
                 </div>
             </div>
             <div data-reveal>

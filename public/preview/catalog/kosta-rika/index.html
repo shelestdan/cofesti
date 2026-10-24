@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="COFESTI — кофейня, каталог кофе и ингредиентов для напитков.">
     <title>COFESTI</title>
-    <link rel="preload" as="style" href="/cofesti/build/assets/app-Bs6Ldn8x.css" /><link rel="modulepreload" as="script" href="/cofesti/build/assets/app-CDP0mQmT.js" /><link rel="stylesheet" href="/cofesti/build/assets/app-Bs6Ldn8x.css" /><script type="module" src="/cofesti/build/assets/app-CDP0mQmT.js"></script>
+    <link rel="preload" as="style" href="/cofesti/build/assets/app-Dn-tF_im.css" /><link rel="modulepreload" as="script" href="/cofesti/build/assets/app-CDP0mQmT.js" /><link rel="stylesheet" href="/cofesti/build/assets/app-Dn-tF_im.css" /><script type="module" src="/cofesti/build/assets/app-CDP0mQmT.js"></script>
 <meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/cofesti/preview.css"></head>
 <body class="storefront is-inner">
     <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:left-5 focus:top-5 focus:z-50 focus:rounded-full focus:bg-olive focus:px-4 focus:py-2 focus:text-cream">Перейти к содержимому</a>
@@ -20,9 +20,9 @@
             <nav class="desktop-nav" aria-label="Основная навигация">
                 <a class="hover:text-caramel" href="/cofesti/coffeeshop/">Кофейня</a>
                 <a class="hover:text-caramel" href="/cofesti/catalog/">Каталог</a>
-                <a class="hover:text-caramel" href="/cofesti/#wholesale">Опт</a>
+                <a class="hover:text-caramel" href="/cofesti/business/">Опт</a>
                 <a class="hover:text-caramel" href="/cofesti/#about">О компании</a>
-                <a class="hover:text-caramel" href="/cofesti/#contacts">Контакты</a>
+                <a class="hover:text-caramel" href="/cofesti/business/#business-contacts">Контакты</a>
             </nav>
 
             <div class="header-actions">
@@ -37,9 +37,9 @@
             <div class="page-shell flex flex-col gap-4 px-0 text-lg font-semibold">
                 <a @click="menuOpen = false" href="/cofesti/coffeeshop/">Кофейня</a>
                 <a @click="menuOpen = false" href="/cofesti/catalog/">Каталог</a>
-                <a @click="menuOpen = false" href="/cofesti/#wholesale">Опт</a>
+                <a @click="menuOpen = false" href="/cofesti/business/">Опт</a>
                 <a @click="menuOpen = false" href="/cofesti/#about">О компании</a>
-                <a @click="menuOpen = false" href="/cofesti/#contacts">Контакты</a>
+                <a @click="menuOpen = false" href="/cofesti/business/#business-contacts">Контакты</a>
             </div>
         </nav>
     </header>
@@ -105,8 +105,22 @@
                 <h2 class="display-title text-5xl">Ещё в каталоге</h2>
                 <div class="product-grid catalog-products mt-10">
                                             <article class="product-card" data-reveal>
+    <a class="product-image" href="/cofesti/catalog/armat-brazil-mogiana-espresso-1kg/" aria-label="Бразилия Можиана Эспрессо ARMAT, 1 кг">
+                    <img class="product-photo" src="/cofesti/storage/catalog/armat/armat-coffee.jpg" alt="Бразилия Можиана Эспрессо ARMAT, 1 кг" loading="lazy">
+                <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+    </a>
+    <div class="product-info">
+        <p class="product-category">Кофе</p>
+        <h3><a href="/cofesti/catalog/armat-brazil-mogiana-espresso-1kg/">Бразилия Можиана Эспрессо ARMAT, 1 кг</a></h3>
+        <div class="product-bottom">
+            <span> Цена уточняется </span>
+            <a href="/cofesti/catalog/armat-brazil-mogiana-espresso-1kg/">Подробнее <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</article>
+                                            <article class="product-card" data-reveal>
     <a class="product-image" href="/cofesti/catalog/kofe-v-zernah-cofesti-brazilija-santos-100-arabi/" aria-label="Бразилия Сантос">
-                    <img src="/cofesti/storage/catalog/6662.jpg" alt="Бразилия Сантос" loading="lazy">
+                    <img class="" src="/cofesti/storage/catalog/6662.jpg" alt="Бразилия Сантос" loading="lazy">
                 <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
     </a>
     <div class="product-info">
@@ -120,7 +134,7 @@
 </article>
                                             <article class="product-card" data-reveal>
     <a class="product-image" href="/cofesti/catalog/vetnam/" aria-label="Вьетнам">
-                    <img src="/cofesti/storage/catalog/6717.jpg" alt="Вьетнам" loading="lazy">
+                    <img class="" src="/cofesti/storage/catalog/6717.jpg" alt="Вьетнам" loading="lazy">
                 <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
     </a>
     <div class="product-info">
@@ -134,7 +148,7 @@
 </article>
                                             <article class="product-card" data-reveal>
     <a class="product-image" href="/cofesti/catalog/gvatemala/" aria-label="Гватемала">
-                    <img src="/cofesti/storage/catalog/6713.jpg" alt="Гватемала" loading="lazy">
+                    <img class="" src="/cofesti/storage/catalog/6713.jpg" alt="Гватемала" loading="lazy">
                 <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
     </a>
     <div class="product-info">
@@ -143,20 +157,6 @@
         <div class="product-bottom">
             <span> Цена уточняется </span>
             <a href="/cofesti/catalog/gvatemala/">Подробнее <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
-        </div>
-    </div>
-</article>
-                                            <article class="product-card" data-reveal>
-    <a class="product-image" href="/cofesti/catalog/gonduras/" aria-label="Гондурас">
-                    <img src="/cofesti/storage/catalog/6709.jpg" alt="Гондурас" loading="lazy">
-                <span class="product-image-arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
-    </a>
-    <div class="product-info">
-        <p class="product-category">Кофе</p>
-        <h3><a href="/cofesti/catalog/gonduras/">Гондурас</a></h3>
-        <div class="product-bottom">
-            <span> Цена уточняется </span>
-            <a href="/cofesti/catalog/gonduras/">Подробнее <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
         </div>
     </div>
 </article>
@@ -175,14 +175,19 @@
         <div class="page-shell grid gap-10 md:grid-cols-[1.3fr_1fr_1fr] footer-columns">
             <div data-reveal>
                 <img class="footer-logo" src="/cofesti/images/brand/armat-logo.svg" alt="ARMAT" width="1154" height="256" loading="lazy">
-                <p class="mt-4 max-w-sm text-sm leading-6 text-cream/75">Кофейня для встреч. Кофе по дороге. Всё для ваших ритуалов дома. Контактная информация скоро появится здесь.</p>
+                <p class="mt-4 max-w-sm text-sm leading-6 text-cream/75">Кофейня для встреч. Кофе по дороге. Всё для ваших ритуалов дома.</p>
+                <div class="mt-4 flex flex-col items-start gap-3 text-sm">
+                                            <a href="tel:+79033312189">+7 (903) 331-21-89</a>
+                                            <a href="tel:+79277778678">+7 (927) 777-86-78</a>
+                                        <a href="mailto:RestoratorRf@yandex.ru">RestoratorRf@yandex.ru</a>
+                </div>
             </div>
             <div data-reveal>
                 <p class="eyebrow text-latte">Навигация</p>
                 <div class="mt-4 flex flex-col gap-3 text-sm">
                     <a href="/cofesti/coffeeshop/">Кофейня</a>
                     <a href="/cofesti/catalog/">Каталог</a>
-                    <a href="/cofesti/#wholesale">Оптовым клиентам</a>
+                    <a href="/cofesti/business/">Оптовым клиентам</a>
                 </div>
             </div>
             <div data-reveal>

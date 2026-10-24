@@ -54,7 +54,7 @@ def canonical(value):
     if parts is None:
         return None
     path = parts.path.rstrip('/') or '/'
-    if path not in ('/', '/catalog', '/coffeeshop', '/cart') and not path.startswith('/catalog/'):
+    if path not in ('/', '/catalog', '/coffeeshop', '/cart', '/business') and not path.startswith('/catalog/'):
         return None
     query = parse_qs(parts.query)
     allowed = {k: v[0] for k, v in query.items() if k in ('page', 'category') and v[0]}
@@ -70,7 +70,7 @@ def preview_url(value):
     path = parts.path
     if path.startswith(('/login', '/admin', '/checkout', '/inquiries', '/logout')):
         return '#preview-info'
-    if path == '/catalog' or path.startswith('/catalog/') or path in ('/coffeeshop', '/cart'):
+    if path == '/catalog' or path.startswith('/catalog/') or path in ('/coffeeshop', '/cart', '/business'):
         path = path.rstrip('/') + '/'
     return BASE + path.lstrip('/') + ('?' + parts.query if parts.query else '') + ('#' + parts.fragment if parts.fragment else '')
 

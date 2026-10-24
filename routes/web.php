@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/coffeeshop', [CafeController::class, 'index'])->name('cafe.index');
+Route::view('/business', 'business.index', [
+    'title' => 'Для бизнеса',
+    'metaDescription' => 'Кофе, чай и ингредиенты ARMAT для вашего бизнеса. Анкета партнёра и контакты для связи.',
+])->name('business.index');
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/catalog/{product}', [CatalogController::class, 'show'])->name('catalog.show');
 

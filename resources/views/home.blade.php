@@ -16,10 +16,10 @@
                     <span class="scenario-action"><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
                 </div>
             </a>
-            <a class="hero-scenario hero-takeaway" href="{{ route('cafe.index') }}">
+            <a class="hero-scenario hero-takeaway" href="{{ route('business.index') }}">
                 <img class="mobile-scenario-image" src="{{ asset('images/prototype/takeaway-cup-prototype.webp') }}" alt="" width="1122" height="1402">
                 <div class="hero-scenario-copy">
-                    <h2>Взять<br>с собой</h2>
+                    <h2>Для<br>бизнеса</h2>
                     <span class="scenario-action"><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
                 </div>
             </a>
